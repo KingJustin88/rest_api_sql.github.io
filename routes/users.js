@@ -154,8 +154,8 @@ router.post('/users', [
       password: user.password
     });
   
-    // Set the status to 201 Created and end the response.
-    return res.status(201).end();
+    // Set the status to 201 Created, location header to '/' and end the response.
+    return res.status(201).location('/').end();
     }
 }));
 

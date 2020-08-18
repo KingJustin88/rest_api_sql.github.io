@@ -105,7 +105,7 @@ router.get('/courses/:id', asyncHandler( async(req, res) => {
       model: User,
       attributes: ["id", "firstName", "lastName", "emailAddress"]
     }]
-  })
+  });
   if(course) {
     res.json({ course })
   } else {
@@ -144,7 +144,7 @@ router.post('/courses', [
     const addCourse = await Course.create({
       title: course.title,
       description: course.description,
-      userId: req.currentUser.id
+      userId: course.userId
     });
     
     // new course id for location header
@@ -169,51 +169,51 @@ router.put('/courses/:id', [
   // attempt to get the validation result from the Request object
   const errors = validationResult(req);
 
-    // handles errors if any
-    if(!errors.isEmpty()) {
-      // use the array 'map()' to get a list of error messages
-      const errorMessages = errors.array().map(error => error.msg);
+  // handles errors if any
+  if(!errors.isEmpty()) {
+    // use the array 'map()' to get a list of error messages
+    const errorMessages = errors.array().map(error => error.msg);
 
-      // return rendering the validation errors to the client
-      res.status(400).json({ errors: errorMessages });
-    } else {
+    // return rendering the validation errors to the client
+    res.status(400).json({ errors: errorMessages });
+  } else {
 
-      // look for existing course
-      const course = await Course.findByPk(req.params.id, {
-        attributes: ["id", "title", "description", "userId"],
-        include: [{
-          model: User,
-          attribute: ["id", "firstName", "lastName", "emailAddress"]
-        }]  
-      });
+    // look for existing course
+    const course = await Course.findByPk(req.params.id, {
+      attributes: ["id", "title", "description", "userId"],
+      include: [{
+        model: User,
+        attributes: ["id", "firstName", "lastName", "emailAddress"]
+      }]  
+    });
 
-      // check for course if it exists
-      if (course) {
-        // if course matches current user id
-        if (course.userId === req.currentUser.id) {
-          // update the course
-          const updateCourse = await Course.update({
-            title: req.body.title,
-            description: req.body.description
-          }, {
-            where: {
-              id: course.id
-            }
-          });
-          if(updateCourse) {
-            res.status(404).end()
+    // check for course if it exists
+    if (course) {
+      // if course matches current user id
+      if (course.userId === req.currentUser.id) {
+        // update the course
+        const updateCourse = await Course.update({
+          title: req.body.title,
+          description: req.body.description,
+          estimatedTime: req.body.estimatedTime,
+          materialsNeeded: req.body.materialsNeeded
+        }, {
+          where: {
+            id: course.id
           }
-        } else {
-          // updating on the wrong course id
-          res.status(403).json({message: "Access Denied"});
-        } 
+        });        
+        if(updateCourse) {
+          res.status(204).end();
+        }
       } else {
-        // course can't be found
-        res.status(404).json({message: "No Course found"})
-    }
-    
+        // updating on the wrong course id
+        res.status(403).json({message: "Access Denied"});
+      } 
+    } else {
+      // course can't be found
+      res.status(404).json({message: "No Course found"})       
+    }   
   } 
-
 }));
 
 // DELETE /api/course/:id 204 - deletes a course and returns no content
@@ -236,18 +236,18 @@ router.delete('/courses/:id', authenticateUser, asyncHandler( async(req, res) =>
           id: course.id
         }
       });
-
       if (deleteCourse) {
-        res.status(404).end();
-      } else {
-      // deleting on the wrong course id
-      res.status(403).json({message: "Access Denied"});
+        res.status(204).end();
       } 
-      } else {
-    // course can't be found
-    res.status(404).json({message: "No Course found"})
-    }
-  }
-}));
+    } else {
+        // deleting on the wrong course id
+        res.status(403).json({message: "Access Denied"});
+      } 
+    } else {
+      // course can't be found
+      res.status(404).json({message: "No Course found"})       
+    } 
+  }  
+));
 
 module.exports = router;

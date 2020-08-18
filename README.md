@@ -36,3 +36,5 @@ npm start
 ```
 
 To test the Express server, browse to the URL [http://localhost:5000/](http://localhost:5000/).
+
+I added a route for the users to delete users by the :id

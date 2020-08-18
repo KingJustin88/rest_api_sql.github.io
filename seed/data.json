@@ -11,6 +11,18 @@
       "lastName": "Jones",
       "emailAddress": "sally@jones.com",
       "password": "sallypassword"
+    },
+    {
+      "firstName": "Justin", 
+      "lastName": "Lee",
+      "emailAddress": "justin@lee.com",
+      "password": "justinpassword"
+    },
+    {
+      "firstName": "John", 
+      "lastName": "Doe",
+      "emailAddress": "john@smith.com",
+      "password": "johnpassword"
     }
   ],
   "courses": [
